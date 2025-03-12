@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 from typing import List, Optional
 
 class Proposal(BaseModel):
@@ -7,3 +7,13 @@ class Proposal(BaseModel):
     body: str
     choices: List[str]
     scores: List[int]
+
+class Vote(BaseModel):
+    proposal_id: str
+    user_id: str
+    vote_choice: str  # "support", "against", "abstain"
+
+class User(BaseModel):
+    username: str
+    email: EmailStr
+    password: str

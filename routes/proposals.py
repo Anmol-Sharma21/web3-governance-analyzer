@@ -1,18 +1,22 @@
-from flask import Blueprint, jsonify
-from services.dao_service import fetch_proposals, analyze_proposal
+from flask import Blueprint, request, jsonify
+from services.dao_service import submit_proposal, vote_on_proposal, analyze_proposal
+from database import proposals_collection
 
 proposals_bp = Blueprint("proposals", __name__)
 
-@proposals_bp.route("/proposals", methods=["GET"])
-def get_proposals():
-    proposals = fetch_proposals()
-    return jsonify({"status": "success", "data": proposals})
+@proposals_bp.route("/submit", methods=["POST"])
+def submit():
+    data = request.json
+    return jsonify(submit_proposal(data["title"], data["body"], data["choices"]))
 
-@proposals_bp.route("/analyze", methods=["POST"])
+@proposals_bp.route("/vote", methods=["POST"])
+def vote():
+    data = request.json
+    return jsonify(vote_on_proposal(data["proposal_id"], data["user_id"], data["vote_choice"]))
+
+@proposals_bp.route("/analyze", methods=["GET"])
 def analyze():
-    proposals = fetch_proposals()
-    if not proposals:
-        return jsonify({"status": "error", "message": "No proposals found."}), 404
-
-    result = analyze_proposal(proposals[0])  # Analyze first proposal
-    return jsonify({"status": "success", "data": result})
+    proposal = proposals_collection.find_one({}, {"_id": 0})  # Get latest proposal
+    if not proposal:
+        return jsonify({"error": "No proposals found"}), 404
+    return jsonify(analyze_proposal(proposal))
