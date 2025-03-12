@@ -1,0 +1,8 @@
+Flask
+Flask-RESTx
+pymongo
+python-dotenv
+langchain
+langchain_groq
+langgraph
+pydantic
